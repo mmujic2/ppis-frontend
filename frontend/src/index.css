@@ -1,0 +1,12 @@
+body {
+  background-color: var(--bodyColor);
+}
+
+.Logo {
+  background-image: url(./images/logo.png);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
