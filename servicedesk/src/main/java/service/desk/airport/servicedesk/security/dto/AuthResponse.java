@@ -1,9 +1,14 @@
 package service.desk.airport.servicedesk.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import service.desk.airport.servicedesk.security.entity.User;
 
 public class AuthResponse {
-    private String token;
+    @JsonProperty("accessToken")
+    private String accessToken;
+    @JsonProperty("refreshToken")
+    private String refreshToken;
+    private Integer id;
     private String firstName;
     private String lastName;
     private String email;
@@ -13,8 +18,10 @@ public class AuthResponse {
     public AuthResponse() {
     }
 
-    public AuthResponse(String token, User user) {
-        this.token = token;
+    public AuthResponse(String accessToken, String refreshToken, User user) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.id=user.getId();
         this.firstName = user.getFirstname();
         this.lastName = user.getLastname();
         this.role = user.getRole().getName();
@@ -22,12 +29,28 @@ public class AuthResponse {
         this.email= user.getEmail();
     }
 
-    public String getToken() {
-        return token;
+    public Integer getId() {
+        return id;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String token) {
+        this.accessToken = token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getFirstName() {

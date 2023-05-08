@@ -1,15 +1,22 @@
 package service.desk.airport.servicedesk.security.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import service.desk.airport.servicedesk.security.token.Token;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -84,7 +91,7 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
+    public String getUserPassword() {
         return password;
     }
 
@@ -114,5 +121,43 @@ public class User {
 
     public void setUserTokens(List<Token> userTokens) {
         this.userTokens = userTokens;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() { // po potrebi se moze razviti da ima vise roles jedan user i onda se lista siri
+        Role role = getRole();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return getUserPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return getEmail();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { // mozemo koristiti naknadno zasad hardkodirano
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() { // mozemo koristiti naknadno zasad hardkodirano
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() { // mozemo koristiti naknadno zasad hardkodirano
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() { // mozemo koristiti naknadno zasad hardkodirano
+        return true;
     }
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AirportUserDetails implements UserDetails {
+public class AirportUserDetails  {
 
     private User user;
 
@@ -18,41 +18,13 @@ public class AirportUserDetails implements UserDetails {
         this.user = user;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() { // po potrebi se moze razviti da ima vise roles jedan user i onda se lista siri
-        Role role = user.getRole();
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(role.getName()));
-        return authorities;
+    public User getUser() {
+        return user;
     }
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    @Override
-    public String getUsername() {
-        return user.getEmail();
-    }
 
-    @Override
-    public boolean isAccountNonExpired() { // mozemo koristiti naknadno zasad hardkodirano
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() { // mozemo koristiti naknadno zasad hardkodirano
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() { // mozemo koristiti naknadno zasad hardkodirano
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() { // mozemo koristiti naknadno zasad hardkodirano
-        return true;
-    }
 }

@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import setBodyColor from "../../functions/setBodyColor";
-import logo from "../../images/logo.png";
+import logo from "../../images/logo2.png";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -17,8 +17,13 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import IconButton from "@mui/material/IconButton";
 import {useLocalState} from "../../util/useLocalState";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
-const Login = ({user,setUser}) => {
+import AuthService from "../../util/auth.service"
+
+const Login = () => {
+  const navigate = useNavigate();
   const paperStyle = {
     padding: 20,
     height: 300,
@@ -48,34 +53,28 @@ const Login = ({user,setUser}) => {
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
-  const [jwt,setJwt] = useLocalState("","jwt");
+  const [showError,setShowError] = useState(false);
   
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    document.body.style.cursor='wait';
     const reqBody = {
       email: email,
       password: password
     }
 
-    fetch("auth/login", {
-      headers: {
-        "Content-Type": "application/json"
+    AuthService.login(email,password).then(
+      () => {
+        document.body.style.cursor='default';
+        setShowError(false);
+        navigate("/")
       },
-      method: "post",
-      body: JSON.stringify(reqBody)
-    }).then((res) => {
-      if(res.status === 200) 
-          return res.json();
-      else
-        return Promise.reject("Invalid login attempt");
-    }).then(res=>{
-      setJwt(res.token);
-      setUser({firstname:res.firstName,lastname:res.lastName,email:res.email,role:res.role,department:res.department});
-      window.location.href="/"
-    }).catch((message) =>{
-      alert(message);
-    });
+      error => {
+        document.body.style.cursor='default';
+        setShowError(true);
+      }
+    )
 
   };
 
@@ -97,7 +96,7 @@ const Login = ({user,setUser}) => {
       <Grid>
         <Paper elevation={8} style={paperStyle}>
           <div style={{ margin: "20px auto" }}>
-            <h1 color="#00101F" style={{ padding: 0, margin: 0 }}>
+            <h1 color="#00101F" style={{ padding: 0, margin: 0, fontFamily: 'Yantramanav' }}>
               Prijava
             </h1>
             <hr
@@ -125,7 +124,7 @@ const Login = ({user,setUser}) => {
               />
             </FormControl>
 
-            <FormControl margin="normal" fullWidth variant="outlined">
+            <FormControl style={{margin:0,marginTop:8}} fullWidth variant="outlined">
               <InputLabel>Lozinka</InputLabel>
               <OutlinedInput
                 id="password"
@@ -146,15 +145,16 @@ const Login = ({user,setUser}) => {
                 label="Lozinka"
                 onChange={(event) => setPassword(event.target.value)}
               />
+              <span style={{display: showError ? "block" : "none",color:"#d32f2f",fontFamily: 'Yantramanav', marginTop:10,fontSize:'16px' }}>Neispravni pristupni podaci.</span>
             </FormControl>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", padding:0, margin:0 }}>
               <Button
                 type="submit"
                 color="primary"
                 variant="contained"
-                style={btnstyle}
+                style={{backgroundColor: "#00101F",marginTop:10,textTransform: 'none',fontFamily:"Yantramanav",fontWight:"500",fontSize:"18px"}}
                 fullWidth
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 0, mb: 2 }}
               >
                 Nastavi
               </Button>

@@ -23,6 +23,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Could not find user");
         }
 
-        return new AirportUserDetails(user.get());
+        return user.get();
     }
 }

@@ -1,0 +1,22 @@
+
+.trround, .tdround{border: 0px solid black;
+    border-radius: 10px;
+    border-collapse: separate; 
+    background-color:white;}
+.td1 {vertical-align:top;text-align:left;width:300px;height:20px;padding:10px;font-size: larger}
+.td2 {vertical-align:top;text-align:right;width:300px;height:20px;padding:5px;font-size: large}
+.td3 {vertical-align:bottom;text-align:left;width:300px;height:20px;padding:10px;font-size: larger}
+.td4 {vertical-align:bottom;text-align:right;width:300px;height:20px;padding:5px;font-size: large}
+.tdsep {padding-top:10px; vertical-align:top; text-align:right}
+.tablebig{
+margin-left: auto;
+margin-right: auto;
+border-collapse: separate; 
+}
+.my-modal .modal-content {
+    background-color: rgb(220, 220, 220);
+  }
+
+  .modal-backdrop {
+    background-color: rgb(255, 255, 255);
+  }

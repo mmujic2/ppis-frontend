@@ -12,9 +12,10 @@ import service.desk.airport.servicedesk.security.dao.UserRepository;
 import service.desk.airport.servicedesk.security.entity.Department;
 import service.desk.airport.servicedesk.security.entity.Role;
 import service.desk.airport.servicedesk.security.entity.User;
+import service.desk.airport.servicedesk.security.token.TokenRepository;
 
-@EnableJpaRepositories(basePackages = { "service.desk.airport.servicedesk.security.dao","service.desk.airport.servicedesk.security.token"})
-@EntityScan(basePackages = {"service.desk.airport.servicedesk.security.entity","service.desk.airport.servicedesk.security.token"})
+@EnableJpaRepositories(basePackages = { "service.desk.airport.servicedesk.dao","service.desk.airport.servicedesk.security.dao","service.desk.airport.servicedesk.security.token"})
+@EntityScan(basePackages = {"service.desk.airport.servicedesk.entity","service.desk.airport.servicedesk.security.entity","service.desk.airport.servicedesk.security.token"})
 @SpringBootApplication//(exclude = {DataSourceAutoConfiguration.class })
 public class ServicedeskApplication implements CommandLineRunner {
 
@@ -27,6 +28,9 @@ public class ServicedeskApplication implements CommandLineRunner {
 	@Autowired
 	RoleRepository roleRepository;
 
+	@Autowired
+	TokenRepository tokenRepository;
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(ServicedeskApplication.class, args);
@@ -34,6 +38,7 @@ public class ServicedeskApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception
 	{
+		deleteExpiredTokens();
 		//cleanup();
 		//startingData();
 	}
@@ -41,6 +46,10 @@ public class ServicedeskApplication implements CommandLineRunner {
 		userRepository.deleteAll();
 		departmentRepository.deleteAll();
 		roleRepository.deleteAll();
+	}
+
+	private void deleteExpiredTokens() {
+		tokenRepository.deleteInvalidTokens();
 	}
 
 	private void startingData() {

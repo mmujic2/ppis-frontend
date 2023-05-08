@@ -1,5 +1,7 @@
 body {
   background-color: var(--bodyColor);
+  margin:0;
+  padding:0;
 }
 
 .Logo {

@@ -1,5 +1,6 @@
 package service.desk.airport.servicedesk.security.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import service.desk.airport.servicedesk.security.dao.RoleRepository;
@@ -8,6 +9,7 @@ import service.desk.airport.servicedesk.security.entity.Role;
 @Controller
 @RequestMapping(path="/role")
 public class RoleController {
+    @Autowired
     private RoleRepository roleRepository;
 
     @PostMapping(path="/add")
