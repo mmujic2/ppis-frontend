@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function History({ ticketComments, ticketId }) {
+function History({ ticketComments, ticketId,status }) {
   const [commentPage, setCommentPage] = useState([]);
   const [page, setPage] = useState(1);
   const [comment, setComment] = useState();
@@ -166,6 +166,8 @@ function History({ ticketComments, ticketId }) {
         ) : (
           <></>
         )}
+        {(status!="VERIFIED" & status!="CLOSED") ?
+        <>
         <hr></hr>
         <FormControl required style={{ width: "100%" }}>
           <Textarea
@@ -196,6 +198,7 @@ function History({ ticketComments, ticketId }) {
             Dodaj
           </Button>
         </FormControl>
+        </> : <></>}
       </Container>
     </>
   );

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import service.desk.airport.servicedesk.dao.TicketRepository;
+import service.desk.airport.servicedesk.dto.ticket.FilterRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketCreateRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketFilterRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketResponse;
@@ -16,12 +17,10 @@ import service.desk.airport.servicedesk.enums.PriorityLevel;
 import service.desk.airport.servicedesk.enums.TicketStatus;
 import service.desk.airport.servicedesk.enums.TicketTag;
 import service.desk.airport.servicedesk.security.dao.UserRepository;
+import service.desk.airport.servicedesk.security.entity.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,6 +79,11 @@ public class TicketService {
 
     public TicketResponse assignTicket( String userEmail, Integer ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+
+        //Someone has already taken the ticket
+        if(ticket.getStatus().equals(TicketStatus.ASSIGNED))
+            return null;
+
         ticket.setStatus(TicketStatus.ASSIGNED);
         var user = userRepository.findByEmail(userEmail).orElseThrow();
         ticket.setAssignedTo(user);
@@ -89,6 +93,8 @@ public class TicketService {
 
     public TicketResponse verifyTicket( Integer ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        if(ticket.getStatus() != TicketStatus.ASSIGNED)
+            return null;
         ticket.setStatus(TicketStatus.VERIFIED);
         ticketRepository.save(ticket);
         return  new TicketResponse(ticket);
@@ -102,6 +108,16 @@ public class TicketService {
         ticket.setStatus(TicketStatus.CLOSED);
         ticketRepository.save(ticket);
         return  new TicketResponse(ticket);
+    }
+
+    public String deleteTicket(Integer ticketId) {
+        var ticket = ticketRepository.findById(ticketId).orElseThrow();
+        if(ticket.getStatus().equals(TicketStatus.ACTIVE)) {
+            ticketRepository.deleteById(ticketId);
+            return "Uspješno obrisano";
+        }
+
+        return null;
     }
     public List<TicketResponse> filteredSortedTickets(TicketFilterRequest ticketFilterRequest) {
         System.out.println("Usao u rutu");
@@ -117,7 +133,7 @@ public class TicketService {
         else {
             System.out.println("Usao u branch " + ticketFilterRequest.getUserId());
             tickets = ticketRepository
-                    .findAssignedTicketsForId(ticketFilterRequest.getUserId())
+                    .findAssignedTicketsForAgent(ticketFilterRequest.getUserId())
                     .stream()
                     .map(TicketResponse::new)
                     .collect(Collectors.toList());
@@ -151,11 +167,116 @@ public class TicketService {
 
     public List<TicketResponse> getAllTicketsForUser(Integer userId) {
         return ticketRepository
-                .findAssignedTicketsForId(userId)
+                .findAssignedTicketsForAgent(userId)
                 .stream()
                 .map(TicketResponse::new)
                 .collect(Collectors.toList());
     }
 
+    public List<TicketResponse> getUrgentUnassignedTickets() {
+        return ticketRepository
+                .findUrgentUnassignedTickets()
+                .stream()
+                .map(TicketResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public TicketResponse assignTicketToUser(Integer ticketId, Integer userId) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        if(ticket.getStatus().equals(TicketStatus.CLOSED) || ticket.getStatus().equals(TicketStatus.VERIFIED))
+            return null;
+        ticket.setStatus(TicketStatus.ASSIGNED);
+        var user = userRepository.findById(userId).orElseThrow();
+        ticket.setAssignedTo(user);
+        ticketRepository.save(ticket);
+        return  new TicketResponse(ticket);
+    }
+
+    public TicketResponse assignTicketToUserWithDeparment(Integer ticketId, Integer departmentId){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        if(ticket.getStatus().equals(TicketStatus.CLOSED) || ticket.getStatus().equals(TicketStatus.VERIFIED))
+            return null;
+        ticket.setStatus(TicketStatus.ASSIGNED);
+
+        var user = userRepository.findUserInSpecificDepartment(departmentId);
+
+
+        ticket.setAssignedTo(user);
+        ticketRepository.save(ticket);
+        return  new TicketResponse(ticket);
+    }
+
+    public List<TicketResponse>  getAssignedTicketsForAgent(String userEmail) {
+        var user = userRepository.findByEmail(userEmail).orElseThrow();
+        return ticketRepository
+                .findAssignedTicketsForAgent(user.getId())
+                .stream()
+                .map(TicketResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<TicketResponse>  getOpenTicketsForAgent(String userEmail) {
+        var user = userRepository.findByEmail(userEmail).orElseThrow();
+        return ticketRepository
+                .getOpenTicketsForAgent(user.getId())
+                .stream()
+                .map(TicketResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<TicketResponse>  getClosedTicketsForAgent(String userEmail) {
+        var user = userRepository.findByEmail(userEmail).orElseThrow();
+        return ticketRepository
+                .findClosedTicketsForAgent(user.getId())
+                .stream()
+                .map(TicketResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<TicketResponse> getFilteredTickets(FilterRequest filterRequest) {
+        List<TicketResponse> tickets;
+        var user = userRepository.findByEmail(filterRequest.getUserEmail()).orElseThrow();
+
+        if (filterRequest.getTicketType().equals("assigned")){
+            tickets = ticketRepository
+                    .findAssignedTicketsForAgent(user.getId())
+                    .stream()
+                    .map(TicketResponse::new)
+                    .collect(Collectors.toList());
+        }
+        else if (filterRequest.getTicketType().equals("open")){
+            tickets = ticketRepository
+                    .getOpenTicketsForAgent(user.getId())
+                    .stream()
+                    .map(TicketResponse::new)
+                    .collect(Collectors.toList());
+        }
+        else {
+            tickets = ticketRepository
+                    .findClosedTicketsForAgent(user.getId())
+                    .stream()
+                    .map(TicketResponse::new)
+                    .collect(Collectors.toList());
+        }
+        if (!tickets.isEmpty()){
+            tickets.sort(Comparator.comparing(TicketResponse::getDate));
+            if(filterRequest.getSorting().equals("descending")){
+                Collections.reverse(tickets);
+            }
+        }
+
+
+        if( filterRequest.getCategory() != null){
+            tickets = tickets.stream().filter(ticket -> ticket.getCategory().equals(filterRequest.getCategory())).toList();
+        }
+        if( filterRequest.getPriorityLevel() != null){
+            tickets = tickets.stream().filter(ticket -> ticket.getPriorityLevel().equals(filterRequest.getPriorityLevel())).toList();
+        }
+
+
+
+
+        return tickets;
+    }
 
 }

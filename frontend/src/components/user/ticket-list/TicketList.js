@@ -106,27 +106,6 @@ function TicketList() {
                   }
                   value="2"
                 />
-
-                <Tab
-                  value="3"
-                  label={
-                    <span
-                      className={
-                        valueTab == 3
-                          ? classes.activeTab
-                          : classes.customStyleOnTab
-                      }
-                    >
-                      Ostali aktivni zahtjevi
-                    </span>
-                  }
-                  sx={{
-                    borderBottom: 1,
-                    borderColor: "divider",
-                    backgroundColor: backgroundColorTab[2],
-                    fontFamily: "Yantramanav",
-                  }}
-                />
               </TabList>
             </Box>
             <TabPanel value="1">

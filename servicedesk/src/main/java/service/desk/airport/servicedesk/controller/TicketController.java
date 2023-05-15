@@ -1,25 +1,25 @@
 package service.desk.airport.servicedesk.controller;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.function.EntityResponse;
 import service.desk.airport.servicedesk.dao.TicketRepository;
 import service.desk.airport.servicedesk.dto.other.idArray;
+import service.desk.airport.servicedesk.dto.ticket.FilterRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketCreateRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketFilterRequest;
 import service.desk.airport.servicedesk.dto.ticket.TicketResponse;
-import service.desk.airport.servicedesk.entity.Ticket;
 import service.desk.airport.servicedesk.security.service.JwtService;
 import service.desk.airport.servicedesk.service.TicketService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path="/ticket")
@@ -51,7 +51,7 @@ public class TicketController {
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponse> getTicketById(@PathVariable("id")Integer ticketId) {
         try {
-            return ResponseEntity.ok(new TicketResponse(ticketService.getTicket(ticketId)));
+            return ResponseEntity.ok(new TicketResponse(ticketService.getTicket(ticketId),false));
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -98,6 +98,29 @@ public class TicketController {
         var userEmail = jwtService.extractUsername(token.substring(7));
         return ResponseEntity.ok(ticketService.getOtherTicketsForUser(userEmail));
     }
+    @GetMapping("/agentassigned")
+    public ResponseEntity<List<TicketResponse>> getAssignedTicketsForAgent(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        var userEmail = jwtService.extractUsername(token.substring(7));
+        return ResponseEntity.ok(ticketService.getAssignedTicketsForAgent(userEmail));
+    }
+
+    @GetMapping("/agentopen")
+    public ResponseEntity<List<TicketResponse>> getOpenTicketsForAgent(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        var userEmail = jwtService.extractUsername(token.substring(7));
+        return ResponseEntity.ok(ticketService.getOpenTicketsForAgent(userEmail));
+    }
+
+    @GetMapping("/agentclosed")
+    public ResponseEntity<List<TicketResponse>> getClosedTicketsForAgent(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        var userEmail = jwtService.extractUsername(token.substring(7));
+        return ResponseEntity.ok(ticketService.getClosedTicketsForAgent(userEmail));
+    }
 
     @PreAuthorize("hasRole('sd_agent')")
     @PostMapping("/assign/{id}")
@@ -106,7 +129,13 @@ public class TicketController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             var userEmail = jwtService.extractUsername(token.substring(7));
-            return ResponseEntity.ok(ticketService.assignTicket(userEmail, ticketId));
+
+            var res = ticketService.assignTicket(userEmail, ticketId);
+            if(res==null)
+                return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(400));
+
+
+            return ResponseEntity.ok(res);
         } catch (Exception e) {
             return new  ResponseEntity<TicketResponse>(HttpStatus.BAD_REQUEST);
         }
@@ -118,10 +147,27 @@ public class TicketController {
             @PathVariable("id") Integer ticketId,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            return ResponseEntity.ok(ticketService.verifyTicket(ticketId));
+            var res = ticketService.verifyTicket(ticketId);
+            if(res==null)
+                return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(400));
+
+            return ResponseEntity.ok(res);
         } catch (Exception e) {
             return new  ResponseEntity<TicketResponse>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PreAuthorize("hasRole('sd_user')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTicket(
+            @PathVariable("id") Integer ticketId,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        var res = ticketService.deleteTicket(ticketId);
+        if(res==null)
+            return new ResponseEntity<String>("Nije moguće obrisati ticket", HttpStatusCode.valueOf(400));
+
+        return ResponseEntity.ok("Uspješno obrisano");
     }
 
     @PreAuthorize("hasRole('sd_agent')")
@@ -150,6 +196,7 @@ public class TicketController {
             @RequestBody TicketFilterRequest request,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            System.out.println("blb");
             return ResponseEntity.ok(ticketService.filteredSortedTickets(request));
         } catch (Exception e) {
             return new ResponseEntity<List<TicketResponse>>(HttpStatus.BAD_REQUEST);
@@ -162,6 +209,7 @@ public class TicketController {
             @PathVariable("relatedticketid") Integer relatedTicketId) {
         try{
             var ticket = ticketService.getTicket((ticketId));
+
 
             for(var t : ticket.getRelatedTickets()) {
                 if(Objects.equals(t.getId(), relatedTicketId)) {
@@ -213,5 +261,58 @@ public class TicketController {
         }
 
     }
+
+    @PreAuthorize("hasRole('sd_agent')")
+    @GetMapping("/urgent")
+    public ResponseEntity<List<TicketResponse>> getUrgentActiveTickets() {
+        return ResponseEntity.ok(ticketService.getUrgentUnassignedTickets());
+    }
+
+    @PreAuthorize("hasRole('sd_agent')")
+    @PostMapping("/assign/{ticket_id}/{user_id}")
+    public ResponseEntity<TicketResponse> assignTicketToUser(@PathVariable Integer ticket_id, @PathVariable Integer user_id) {
+        try {
+            var res = ticketService.assignTicketToUser(ticket_id, user_id);
+            //Ticket is already VERIFIED or CLOSED
+            if(res==null)
+                return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(400));
+
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            //User or ticket with those ids weren't found
+            return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(404));
+        }
+    }
+
+    @PreAuthorize("hasRole('sd_agent')")
+    @PostMapping("/assign/department/{ticket_id}/{department_id}")
+    public ResponseEntity<TicketResponse> assignTicketToUserWithDeparment(@PathVariable Integer ticket_id, @PathVariable Integer department_id) {
+        try {
+            var res = ticketService.assignTicketToUserWithDeparment(ticket_id, department_id);
+            //Ticket is already VERIFIED or CLOSED
+            if(res==null)
+                return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(400));
+            else if(res.getAssignedTo() == null)
+                return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(404));
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            //User or ticket with those ids weren't found
+            return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(404));
+        }
+    }
+
+    @PostMapping("/agentfilter")
+    public ResponseEntity<List<TicketResponse>> getFilteredAssignedTicketsForAgent(
+            @RequestBody FilterRequest request,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        var userEmail = jwtService.extractUsername(token.substring(7));
+        request.setUserEmail(userEmail);
+        return ResponseEntity.ok(ticketService.getFilteredTickets(request));
+    }
+
+
+
+
 
 }

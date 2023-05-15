@@ -1,65 +1,60 @@
-package service.desk.airport.servicedesk.entity;
+package service.desk.airport.servicedesk.dto.report;
 
-import jakarta.persistence.*;
+import service.desk.airport.servicedesk.entity.Report;
 import service.desk.airport.servicedesk.enums.PriorityLevel;
 import service.desk.airport.servicedesk.enums.TicketTag;
-import service.desk.airport.servicedesk.security.entity.User;
+import service.desk.airport.servicedesk.security.dto.UserResponse;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "report")
-public class Report {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+public class ReportResponse {
+
     private Integer id;
-
-    @Column(name = "tag")
     private TicketTag tag;
-
-    @Column(name = "department")
     private String department;
 
-    @Column(name="report_date")
     private LocalDateTime reportDate;
 
-    @Column(name="datetime_requested")
     private LocalDateTime dateTimeRequested;
 
-    @Column(name="code", unique = true)
     private String code;
 
-    @Column(name="priority")
     private PriorityLevel priorityLevel;
 
-    @Column(name="sla_breached")
     private Boolean slaBreached;
 
-    @Column(name="duration")
     private String duration;
 
-    @Column(name="description")
     private String description;
 
-    @Column(name="business_impact")
     private String businessImpact;
 
-    @Column(name="corrective_actions")
     private String correctiveActions;
 
-    @ManyToOne
-    @JoinColumn(name = "raised_by")
-    private User raisedBy;
+    private UserResponse raisedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "resolved_by")
-    private User resolvedBy;
+    private UserResponse resolvedBy;
 
-    public Report() {
+    public ReportResponse(Report report) {
+        id = report.getId();
+        tag = report.getTag();
+        code = report.getCode();
+        slaBreached = report.getSlaBreached();
+        department = report.getDepartment();
+        description = report.getDescription();
+        businessImpact = report.getBusinessImpact();
+        correctiveActions = report.getCorrectiveActions();
+        duration = report.getDuration();
+        reportDate = report.getReportDate();
+        dateTimeRequested = report.getDateTimeRequested();
+        priorityLevel = report.getPriorityLevel();
+        raisedBy = new UserResponse(report.getRaisedBy());
+        resolvedBy = new UserResponse(report.getResolvedBy());
+    }
+    public ReportResponse() {
     }
 
-    public Report(Integer id, TicketTag tag, String department, LocalDateTime reportDate, LocalDateTime dateTimeRequested, String code, PriorityLevel priorityLevel, Boolean slaBreached, String duration, String description, String businessImpact, String correctiveActions, User raisedBy, User resolvedBy) {
+    public ReportResponse(Integer id, TicketTag tag, String department, LocalDateTime reportDate, LocalDateTime dateTimeRequested, String code, PriorityLevel priorityLevel, Boolean slaBreached, String duration, String description, String businessImpact, String correctiveActions, UserResponse raisedBy, UserResponse resolvedBy) {
         this.id = id;
         this.tag = tag;
         this.department = department;
@@ -172,19 +167,19 @@ public class Report {
         this.correctiveActions = correctiveActions;
     }
 
-    public User getRaisedBy() {
+    public UserResponse getRaisedBy() {
         return raisedBy;
     }
 
-    public void setRaisedBy(User raisedBy) {
+    public void setRaisedBy(UserResponse raisedBy) {
         this.raisedBy = raisedBy;
     }
 
-    public User getResolvedBy() {
+    public UserResponse getResolvedBy() {
         return resolvedBy;
     }
 
-    public void setResolvedBy(User resolvedBy) {
+    public void setResolvedBy(UserResponse resolvedBy) {
         this.resolvedBy = resolvedBy;
     }
 }

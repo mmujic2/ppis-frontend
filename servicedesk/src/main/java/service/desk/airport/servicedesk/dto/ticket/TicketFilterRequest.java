@@ -10,11 +10,11 @@ public class TicketFilterRequest {
 
     private String filterType;// string containing c-category, p-priority, t-tag or any combination of them
 
-    private Category category;
+    private Category category = null;
 
     private TicketTag tag;
 
-    private PriorityLevel priorityLevel;
+    private PriorityLevel priorityLevel = null;
 
     private String sort;
 
