@@ -141,7 +141,7 @@ function TopInfo({ticket,setTicket,setTicketComments,ticketComments}) {
           <div style={{width:"100%",clear:"both",paddingTop:"5px",display:"inline-block"}}>
           {ticket.assignedTo ? <span style={{verticalAlign:"middle",fontFamily:"Yantramanav",color:"white",fontWeight:"bold",float:"left",fontSize:"100%"}}>Preuzeo: {ticket.assignedTo.firstname} {ticket.assignedTo.lastname}</span>
           :<></>}
-            <Options ticket={ticket} setTicket={setTicket} setTicketComments={setTicketComments} ticketComments={ticketComments}></Options>
+            <Options relatedTickets={relatedTickets} setRelatedTickets={setRelatedTickets} ticket={ticket} setTicket={setTicket} setTicketComments={setTicketComments} ticketComments={ticketComments}></Options>
           </div>
           <RelatedTickets open={open} setOpen={setOpen} tickets={relatedTickets} ></RelatedTickets>
           </Container>

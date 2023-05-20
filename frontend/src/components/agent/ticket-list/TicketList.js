@@ -15,6 +15,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import CircularProgress from "@mui/material/CircularProgress";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { RefreshRounded } from "@mui/icons-material";
 import {
   Grid,
   IconButton,
@@ -34,6 +35,7 @@ function TicketList() {
   const [assignedTickets, setAssignedTickets] = useState();
   const [openTickets, setOpenTickets] = useState();
   const [closedTickets, setClosedTickets] = useState();
+  const [displayedData, setDisplayedData] = useState();
 
   const [categoryError, setCategoryError] = useState(false);
   const [priorityError, setPriorityError] = useState(false);
@@ -42,12 +44,14 @@ function TicketList() {
     icon: <ArrowUpwardIcon />,
     up: true,
   });
+  const [loading,setLoading] = useState(false)
 
   const [filterData, setFilterData] = useState({
     priorityLevel: null,
     category: null,
     ticketType: null,
     userEmail: null,
+    tag:null,
     sorting: "descending",
   });
 
@@ -66,6 +70,7 @@ function TicketList() {
       [event.target.name]: event.target.value,
     });
 
+    console.log(valueTab)
     switch (valueTab) {
       case "1":
         filterData.ticketType = "assigned";
@@ -87,30 +92,50 @@ function TicketList() {
         setPriorityError(false);
         filterData.priorityLevel = event.target.value;
         break;
+      case "tag":
+        filterData.tag = event.target.value;
+        break;
       case "sorting":
         console.log("sortchange");
 
         if (sortData.up === true) {
-          sortData.icon = <ArrowDownwardIcon />;
-          sortData.up = false;
-          filterData.sorting = "descending";
+          setSortData({icon:<ArrowDownwardIcon />,up : false})
+          setFilterData({...filterData,sorting : "descending"});
         } else {
-          sortData.icon = <ArrowUpwardIcon />;
-          sortData.up = true;
-          filterData.sorting = "ascending";
+          setSortData({icon:<ArrowUpwardIcon />,up : true})
+          setFilterData({...filterData,sorting : "ascending"});
         }
 
         break;
     }
 
     if (filterData.ticketType != null) {
-      api.post("/ticket/agentfilter", filterData).then((res) => {
-        setAssignedTickets(res.data);
-      });
+     reloadData()
     }
   };
 
   const handleChange = (event, newValue) => {
+    let type=""
+    switch(newValue) {
+     case "1":
+        setDisplayedData(assignedTickets)
+        type="assigned"
+        break;
+      
+      case "2":
+        setDisplayedData(openTickets)
+        type="open"
+        break;
+      case "3":
+        setDisplayedData(closedTickets)
+        type="closed"
+        break;
+    }
+
+    setFormData({...formData,category:null,priorityLevel:null,tag:null})
+    setFilterData({...filterData,ticketType:type,category:null,priorityLevel:null,tag:null})
+    setSortData({up:true})
+
     const newBackgroundColor = backgroundColorTab.map((c, i) => {
       if (i == valueTab - 1) return "#00101F";
       else if (i == newValue - 1) return "#F5F5F5";
@@ -120,9 +145,13 @@ function TicketList() {
     setValueTab(newValue);
   };
 
+  var mounted=false;
   useEffect(() => {
+    if(!mounted) {
+      mounted=true;
     api.get("/ticket/agentassigned").then((res) => {
       setAssignedTickets(res.data);
+      setDisplayedData(res.data);
     });
     api.get("/ticket/agentopen").then((res) => {
       setOpenTickets(res.data);
@@ -130,7 +159,16 @@ function TicketList() {
     api.get("/ticket/agentclosed").then((res) => {
       setClosedTickets(res.data);
     });
+  }
   }, []);
+
+  const reloadData = () =>{
+    setLoading(true)
+    api.post("/ticket/agentfilter", filterData).then((res) => {
+      setDisplayedData(res.data);
+      setLoading(false)
+    });
+  }
 
   return (
     <>
@@ -140,7 +178,7 @@ function TicketList() {
         style={{ backgroundColor: "#F5F5F5", padding: 0, width: "80%" }}
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={valueTab}>
+          <TabContext value={valueTab} >
             <Box>
               <TabList
                 onChange={handleChange}
@@ -165,7 +203,7 @@ function TicketList() {
                           : classes.customStyleOnTab
                       }
                     >
-                      Vaši aktivni zahtjevi
+                      Preuzeti aktivni zahtjevi
                     </span>
                   }
                   value="1"
@@ -205,7 +243,7 @@ function TicketList() {
                           : classes.customStyleOnTab
                       }
                     >
-                      Zatvoreni zahtjevi
+                      Obrađeni zahtjevi
                     </span>
                   }
                   value="3"
@@ -214,13 +252,48 @@ function TicketList() {
             </Box>
             <Grid item xs={12}>
               <div>
-                <FormControl
-                  required
+               <Button
+               style={{
+                height: "fit-content",
+                marginTop: 25,
+                marginLeft: 80,
+                color:"#00101f"
+              }}
+              onClick={reloadData}
+               ><RefreshRounded></RefreshRounded></Button>
+              <FormControl
                   style={{
                     width: "20%",
                     height: "fit-content",
                     marginTop: 15,
-                    marginLeft: 80,
+                    marginLeft: 10,
+                  }}
+                >
+                  <InputLabel id="demo-simple-select-label">
+                    Vrsta
+                  </InputLabel>
+                  <Select
+                    style={{ backgroundColor: "white" }}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Vrsta"
+                    name="tag"
+                    value={formData.tag ? formData.tag : ""}
+                    onChange={(event) => {
+                      handleFilter(event);
+                    }}
+                    error={categoryError}
+                  >
+                    <MenuItem value={"INCIDENT"}>Incident</MenuItem>
+                    <MenuItem value={"REQUEST"}>Zahtjev za uslugom</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl
+                  style={{
+                    width: "20%",
+                    height: "fit-content",
+                    marginTop: 15,
+                    marginLeft: 20
                   }}
                 >
                   <InputLabel id="demo-simple-select-label">
@@ -246,8 +319,7 @@ function TicketList() {
                 </FormControl>
 
                 <FormControl
-                  required
-                  style={{ width: "20%", marginTop: 15, marginLeft: 40 }}
+                  style={{ width: "20%", marginTop: 15, marginLeft: 20 }}
                 >
                   <InputLabel id="demo-simple-select-label1">
                     Prioritet
@@ -275,7 +347,7 @@ function TicketList() {
                   name="sorting"
                   value={filterData.sorting}
                   variant="sort"
-                  startIcon={sortData.icon}
+                  startIcon={sortData.up? <ArrowUpwardIcon></ArrowUpwardIcon> : <ArrowDownwardIcon></ArrowDownwardIcon>}
                   style={{ float: right, marginTop: 30, marginRight: 70 }}
                   onClick={handleFilter}
                 >
@@ -285,8 +357,8 @@ function TicketList() {
             </Grid>
 
             <TabPanel value="1">
-              {assignedTickets != null ? (
-                <Ticket ticket={assignedTickets}></Ticket>
+              {displayedData != null && loading!=true ? (
+                <Ticket ticket={displayedData}></Ticket>
               ) : (
                 <Backdrop
                   sx={{
@@ -300,12 +372,34 @@ function TicketList() {
               )}
             </TabPanel>
             <TabPanel value="2">
-              {" "}
-              <Ticket ticket={openTickets}></Ticket>
+            {displayedData != null && loading!=true ? (
+                <Ticket ticket={displayedData}></Ticket>
+              ) : (
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={true}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
+              )}
             </TabPanel>
             <TabPanel value="3">
-              {" "}
-              <Ticket ticket={closedTickets}></Ticket>
+            {displayedData != null && loading!=true ? (
+                <Ticket ticket={displayedData}></Ticket>
+              ) : (
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={true}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
+              )}
             </TabPanel>
           </TabContext>
         </Box>

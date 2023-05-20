@@ -33,7 +33,9 @@ public class TicketService {
     public Ticket getTicket(Integer ticketId) {
         return ticketRepository.findById(ticketId).orElseThrow();
     }
-
+    public Ticket getTicketByCode(String code) {
+        return ticketRepository.findByCode(code);
+    }
     public TicketResponse createTicket(TicketCreateRequest request) {
         var user = userRepository.findByEmail(request.getUserEmail()).orElseThrow();
         var tag = TicketTag.valueOf(request.getTag());
@@ -44,8 +46,9 @@ public class TicketService {
         var date = LocalDateTime.now();
 
         var ticket = new Ticket(code,request.getTitle(),request.getDescription(),status,priority,category,tag,date,user);
-        ticketRepository.save(ticket);
-
+        ticket = ticketRepository.save(ticket);
+        ticket.setCode("T-" + request.getTag().charAt(0) + "-" + ticket.getId());
+        ticket = ticketRepository.save(ticket);
         return new TicketResponse(ticket);
     }
 
@@ -272,8 +275,9 @@ public class TicketService {
         if( filterRequest.getPriorityLevel() != null){
             tickets = tickets.stream().filter(ticket -> ticket.getPriorityLevel().equals(filterRequest.getPriorityLevel())).toList();
         }
-
-
+        if( filterRequest.getTag() != null){
+            tickets = tickets.stream().filter(ticket -> ticket.getTag().equals(filterRequest.getTag())).toList();
+        }
 
 
         return tickets;

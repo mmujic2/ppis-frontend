@@ -12,6 +12,11 @@ import ManualOverview from "./components/shared/manual-overview/ManualOverview";
 import TicketList from "./components/shared/ticketlist";
 import ReportCreate from "./components/agent/report-create/ReportCreate";
 import ReportOverview from "./components/agent/report-overview/ReportOverview";
+import ReportList from "./components/agent/report-list/ReportList";
+import ManualList from "./components/agent/manual-list/ManualList";
+import ForumList from "./components/shared/forum/ForumList";
+import ForumCreateEdit from "./components/shared/forum/ForumCreate";
+import ForumPostList from "./components/shared/forum/ForumPostList";
 
 function App() {
   return (
@@ -19,6 +24,18 @@ function App() {
       <Routes>
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/" element={<Home></Home>}></Route>
+          <Route
+            path="/forumpost-list"
+            element={<ForumPostList></ForumPostList>}
+          ></Route>
+          <Route
+            path="/forum-list"
+            element={<ForumList></ForumList>}
+          ></Route>
+          <Route
+            path="/create-forum"
+            element={<ForumCreateEdit></ForumCreateEdit>}
+          ></Route>
           <Route
             path="/create-ticket"
             element={<CreateTicket></CreateTicket>}
@@ -43,6 +60,10 @@ function App() {
             path="/manual"
             element={<ManualOverview></ManualOverview>}
           ></Route>
+          <Route
+            path="/manual-list"
+            element={<ManualList></ManualList>}
+          ></Route>
            <Route
             path="/report/create"
             element={<ReportCreate></ReportCreate>}
@@ -50,6 +71,10 @@ function App() {
           <Route
             path="/report"
             element={<ReportOverview></ReportOverview>}
+          ></Route>
+           <Route
+            path="/report-list"
+            element={<ReportList></ReportList>}
           ></Route>
         </Route>
         <Route path="/login" element={<Login></Login>} />

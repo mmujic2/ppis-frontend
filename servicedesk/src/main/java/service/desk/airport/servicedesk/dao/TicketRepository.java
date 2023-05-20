@@ -16,7 +16,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     @Query("SELECT t FROM Ticket t WHERE t.createdBy.id=:userId")
     public List<Ticket> findTicketsByUserId(Integer userId);
 
-    @Query("SELECT t FROM Ticket t WHERE t.createdBy.id=:userId AND (t.status!=2 ) ORDER BY  t.date DESC")
+    @Query("SELECT t FROM Ticket t WHERE t.createdBy.id=:userId AND (t.status!=2) ORDER BY  t.date DESC")
     public List<Ticket> findActiveTicketsByUserId(Integer userId);
 
     @Query("SELECT t FROM Ticket t WHERE t.createdBy.id=:userId AND t.status=2 ORDER BY  t.date DESC")
@@ -37,10 +37,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     @Query("SELECT t from Ticket t WHERE t.status=0 AND t.priorityLevel=3")
     public List<Ticket> findUrgentUnassignedTickets();
 
-    @Query("SELECT t FROM Ticket t WHERE t.assignedTo.id=null AND t.status=1")
+    @Query("SELECT t FROM Ticket t WHERE t.status=0")
     public List<Ticket> getOpenTicketsForAgent(Integer userId);
 
     @Query("SELECT t FROM Ticket t WHERE t.assignedTo.id=:userId AND (t.status=2 )")
     public List<Ticket> findClosedTicketsForAgent(Integer userId);
+
+    @Query("SELECT t FROM Ticket t WHERE t.code=:code")
+    public Ticket findByCode(String code);
 
 }

@@ -48,7 +48,7 @@ public class ManualController {
     }
 
     @PreAuthorize("hasRole('sd_agent')")
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteManual(
             @PathVariable("id") Integer ticketId) {
 

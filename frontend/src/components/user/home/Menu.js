@@ -15,6 +15,10 @@ function Menu() {
     navigate("/create-ticket?tag=" + tag);
   };
 
+  const openForum = () => {
+    navigate("/forum-list")
+  }
+
   return (
     <div
       style={{
@@ -101,6 +105,7 @@ function Menu() {
             size="large"
             sx={{ boxShadow: 5 }}
             style={{ backgroundColor: "white" }}
+            onClick={() => openForum()}
           >
             <ForumIcon style={{ color: "#00101F" }} />
           </IconButton>
@@ -112,6 +117,7 @@ function Menu() {
               color: "#00101F",
               textDecoration: "none",
             }}
+            to="/forum-list"
           >
             Forum
           </Link>
@@ -125,6 +131,7 @@ function Menu() {
             <LiveHelpIcon style={{ color: "#00101F" }} />
           </IconButton>
           <Link
+            to="/manual-list"
             style={{
               paddingLeft: 20,
               fontFamily: "Yantramanav",

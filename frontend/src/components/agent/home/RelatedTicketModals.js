@@ -10,8 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 import TicketCard from "../../user/ticket-list/TicketCard";
-import Ticket from "../../user/ticket-list/Ticket";
-
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import InputLabel from "@mui/material/InputLabel";
@@ -79,10 +77,11 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };*/
 
-export default function RelatedTicketsBind({ open, setOpen, currId }) {
+export default function RelatedTicketsBind({ addRelatedTicket,open, setOpen, currId }) {
   const[circle, setCircle] = useState(0);
   const [relatedId, setRelatedId] = useState(0)
-  const [items, setItems] = useState([])
+  const [code,setCode] = useState("")
+  const [item, setItem] = useState()
   const [success, setSuccess] = useState(false)
 
   const handleClose = () => {
@@ -102,8 +101,10 @@ export default function RelatedTicketsBind({ open, setOpen, currId }) {
       })
     })*/
 
-    api.get("/ticket/" + relatedId).then(x => {
-      setItems([x.data]);
+    api.get("/ticket/code/" + code).then(x => {
+      setItem(x.data);
+      if(x.data!=null)
+        setRelatedId(x.data.id)
       setCircle(0)
     })
   }
@@ -113,35 +114,55 @@ export default function RelatedTicketsBind({ open, setOpen, currId }) {
     setCircle(30)
     // console.log("/ticket/related/" + currId + "/" + relatedId)
     api.post("/ticket/related/" + currId + "/" + relatedId).then(x => {
+      if(x.status==200) {
+      addRelatedTicket(x.data)
       setSuccess(true)
       setCircle(0)
+      }
     })
   }
 
   return (
     <div>
-      <Modal
+      <Dialog
         fullWidth
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-        style={{bgcolor:"#aaaaaa"}}
-        color="#aaaaaa"
+        style={{bgcolor:"#D9D9D9",overflow:"hidden"}}
+        maxWidth={"sm"}
       >
-        <Box sx={style}>
+        
+        <DialogTitle style={{ margin: 0, padding:15, backgroundColor: "#D9D9D9",color:"#00101f",fontFamily:"Yantramanav",fontWeight:"bold",fontSize:"20px",overflow:"hidden" }}>
+        
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Poveži zahtjeve
           </Typography>
+          </DialogTitle>
+          <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            backgroundColor: "#D9D9D9",
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
 
-
+          <DialogContent dividers style={{backgroundColor:"#D9D9D9",overflow:"hidden"}}>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <InputLabel>Id zahtjeva</InputLabel>
+            <InputLabel>Šifra zahtjeva</InputLabel>
               <OutlinedInput
                 id="password"
                 name="password"
                 label="Id zahtjeva"
-                onChange={(e) => setRelatedId(e.target.value)}
+                style={{backgroundColor:"white"}}
+                onChange={(e) => setCode(e.target.value)}
               />
               <Button onClick={FetchTickets} type="submit"
                 color="primary"
@@ -152,43 +173,26 @@ export default function RelatedTicketsBind({ open, setOpen, currId }) {
             </Button>
             <CircularProgress size={circle} sx={{ m: "auto"}}/>
 
-            <table class="tablebig">
-          {items.map(item => (
+           
+          {item!=null? 
             <>
-              <tr key={item.id}>
-                <td class="trround">
-                  <table class="table1"> 
-                    <tr>
-                      <td class="td1 tdround"><b>#{item.id}</b></td>
-                      <td class="td2 tdround">{new Date(item.date).toLocaleString()}</td>
-                    </tr>
-                    <tr> 
-                      <td class="td3 tdround"><b>{item.title}</b></td>
-                      <td class="td4 tdround">{item.createdBy.firstname} {item.createdBy.lastname}</td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td class="tdsep"><Button onClick={BindTicket} style={style3}>Poveži</Button></td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+              <TicketCard t={item}></TicketCard>
+              
             </>
-          ))}
-        </table>
+          : <></>}
+        
           </Typography>
+          </DialogContent>
+          <DialogActions style={{ margin: 0, padding: 10, backgroundColor: "#D9D9D9",overflow:"hidden" }}>
+         
+          {success ? <div style={{color: "green", fontSize: 18, fontFamily:"Yantramanav"}}> Zahtjevi uspješno povezani</div> : <div></div>}
 
-          
-          <Button onClick={handleClose} type="submit"
-                color="primary"
+          {item?<Button onClick={BindTicket} color="primary"
                 variant="contained"
                 style={style2}
-                sx={{ mt: 0, mb: 2 }}>
-            Zatvori
-          </Button>
-          {success ? <div style={{color: "green", fontSize: 18, fontFamily:"Yantramanav"}}> Zahtjevi uspjesno povezani</div> : <div></div>}
-        </Box>
-      </Modal>
+                sx={{ mt: 0, mb: 2 }}>Poveži</Button> : <></>}
+          </DialogActions>
+      </Dialog>
     </div>
   );
 

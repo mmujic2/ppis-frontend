@@ -57,6 +57,15 @@ public class TicketController {
         }
     }
 
+    @GetMapping("/code/{code}")
+    public ResponseEntity<TicketResponse> getTicketByCode(@PathVariable("code")String ticketCode) {
+        try {
+            return ResponseEntity.ok(new TicketResponse(ticketService.getTicketByCode(ticketCode),false));
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/related/{id}")
     public ResponseEntity<TicketResponse> getTicketWithRelatedById(@PathVariable("id")Integer ticketId) {
         try {

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import service.desk.airport.servicedesk.dao.ReportRepository;
 import service.desk.airport.servicedesk.dto.report.ReportCreateRequest;
 import service.desk.airport.servicedesk.dto.report.ReportResponse;
+import service.desk.airport.servicedesk.dto.report.ReportShortResponse;
 import service.desk.airport.servicedesk.entity.Report;
 import service.desk.airport.servicedesk.enums.PriorityLevel;
 import service.desk.airport.servicedesk.enums.TicketTag;
@@ -55,11 +56,11 @@ public class ReportService {
         return new ReportResponse(reportRepository.findById(id).orElseThrow());
     }
 
-    public List<ReportResponse> getAllReports() {
+    public List<ReportShortResponse> getAllReports() {
         return reportRepository
                 .findAll(Sort.by("reportDate"))
                 .stream()
-                .map(r -> new ReportResponse(r))
+                .map(r -> new ReportShortResponse(r))
                 .collect(Collectors.toList());
     }
 }

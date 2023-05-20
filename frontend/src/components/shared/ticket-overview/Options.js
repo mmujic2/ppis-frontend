@@ -14,7 +14,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function Options({ ticket,setTicket,setTicketComments,ticketComments}) {
+function Options({ relatedTickets,setRelatedTickets,ticket,setTicket,setTicketComments,ticketComments}) {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
 
@@ -166,6 +166,11 @@ function Options({ ticket,setTicket,setTicketComments,ticketComments}) {
     )
   }
 
+  const addRelatedTicket = (rTicket) =>{
+    setTicket({...ticket,relatedTicketIds :[...ticket.relatedTicketIds,rTicket.id]})
+    setRelatedTickets([...relatedTickets,rTicket])
+  }
+
   const agentOptions = () => {
     return (
       <div>
@@ -229,7 +234,7 @@ function Options({ ticket,setTicket,setTicketComments,ticketComments}) {
             setOpen={setOpen}
             ticketid={ticket.id}
           ></TicketForwardModal>
-          <RelatedTicketsBind open={openBind} setOpen={setOpenBind} currId={ticket.id}></RelatedTicketsBind>
+          <RelatedTicketsBind addRelatedTicket={addRelatedTicket} open={openBind} setOpen={setOpenBind} currId={ticket.id}></RelatedTicketsBind>
     </div>
     )
   }

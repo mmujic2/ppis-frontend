@@ -2,6 +2,7 @@ package service.desk.airport.servicedesk.dto.ticket;
 
 import service.desk.airport.servicedesk.enums.Category;
 import service.desk.airport.servicedesk.enums.PriorityLevel;
+import service.desk.airport.servicedesk.enums.TicketTag;
 
 public class FilterRequest {
 
@@ -11,12 +12,15 @@ public class FilterRequest {
     private PriorityLevel priorityLevel = null;
     private String sorting = "descending";
 
-    public FilterRequest(String userEmail, String ticketType, Category category, PriorityLevel priorityLevel, String sorting) {
+    private TicketTag tag = null;
+
+    public FilterRequest(String userEmail, String ticketType, Category category, PriorityLevel priorityLevel, String sorting,TicketTag tag) {
         this.userEmail = userEmail;
         this.ticketType = ticketType;
         this.category = category;
         this.priorityLevel = priorityLevel;
         this.sorting = sorting;
+        this.tag = tag;
     }
 
     public String getUserEmail() {
@@ -57,5 +61,13 @@ public class FilterRequest {
 
     public void setSorting(String sorting) {
         this.sorting = sorting;
+    }
+
+    public TicketTag getTag() {
+        return tag;
+    }
+
+    public void setTag(TicketTag tag) {
+        this.tag = tag;
     }
 }

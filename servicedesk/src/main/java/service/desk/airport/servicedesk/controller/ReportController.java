@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import service.desk.airport.servicedesk.dto.report.ReportCreateRequest;
 import service.desk.airport.servicedesk.dto.report.ReportResponse;
+import service.desk.airport.servicedesk.dto.report.ReportShortResponse;
 import service.desk.airport.servicedesk.security.service.JwtService;
 import service.desk.airport.servicedesk.service.ReportService;
 
@@ -38,7 +39,7 @@ public class ReportController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ReportResponse>> getAllReports() {
+    public ResponseEntity<List<ReportShortResponse>> getAllReports() {
         return ResponseEntity.ok(reportService.getAllReports());
     }
 }

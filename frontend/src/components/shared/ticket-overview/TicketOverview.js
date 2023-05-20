@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import api from "../../../util/api";
 import Header from "../../shared/header";
@@ -15,6 +15,9 @@ import History from "./History";
 import authService from "../../../util/auth.service";
 import UnauthorizedAccess from "../UnauthorizedAccess"
 import RelatedTicketsBind from '../../agent/home/RelatedTicketModals';
+import {Breadcrumbs,Stack,Typography} from "@mui/material";
+import Link from '@mui/material/Link';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 i18n.dayNames = [
   "Ned",
@@ -69,6 +72,17 @@ function TicketOverview() {
   const [ticket, setTicket] = useState();
   const [ticketComments, setTicketComments] = useState();
 
+  const navigate = useNavigate();
+
+  const breadcrumbs = [
+    <Link underline="hover" key="1" color="#00101f" href="/" onClick={(e)=>{e.preventDefault(); navigate("/ticket-list")}}>
+      Pregled zahtjeva
+    </Link>,
+    <Typography key="3" color="text.primary">
+      {ticket? ticket.title : ""}
+    </Typography>,
+  ];
+
   useEffect(() => {
     if (!mounted && location.state && id === location.state.id) {
       mounted = true;
@@ -98,6 +112,16 @@ function TicketOverview() {
   return (
     <div>
       <Header></Header>
+      <div style={{marginLeft:"10%", marginTop:"30px"}}>
+      <Stack spacing={2}>
+      <Breadcrumbs
+        separator={<NavigateNextIcon style={{color:"#00101f"}} fontSize="small" />}
+        aria-label="breadcrumb"
+      >
+        {breadcrumbs}
+      </Breadcrumbs>
+      </Stack>
+        </div>
       {id == null ? (
         <NotFound></NotFound>
       ) : (user.role=="sd_user" && ticket!=null && ticket.createdBy.id!=user.id)
