@@ -195,13 +195,14 @@ public class TicketService {
         return  new TicketResponse(ticket);
     }
 
-    public TicketResponse assignTicketToUserWithDeparment(Integer ticketId, Integer departmentId){
+    public TicketResponse assignTicketToUserWithDeparment(Integer ticketId, Integer departmentId,String agentEmail){
+        var agentRequest = userRepository.findByEmail(agentEmail).orElseThrow();
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
         if(ticket.getStatus().equals(TicketStatus.CLOSED) || ticket.getStatus().equals(TicketStatus.VERIFIED))
             return null;
         ticket.setStatus(TicketStatus.ASSIGNED);
 
-        var user = userRepository.findUserInSpecificDepartment(departmentId);
+        var user = userRepository.findUserInSpecificDepartment(departmentId,agentRequest.getId());
 
 
         ticket.setAssignedTo(user);

@@ -152,11 +152,28 @@ function ManualList() {
             api.get("/manual/all").then((res) => {
                 res.data.forEach(m => m.dateTime = dateFormat(m.dateTime, "dd/mm/yyyy, HH:MM"))
                 res.data.forEach(m => m.createdBy = m.createdBy.firstname + " " + m.createdBy.lastname)
-                res.data.forEach(m => m.category = m.category[0].toUpperCase() + m.category.substring(1).toLowerCase())
+                res.data.forEach(m => m.category = category(m.category))
                 setRows(res.data)
             })
         }
     }, [])
+
+    const category = (c) => {
+        switch(c) {
+          case "SOFTWARE":
+            return "Softver";
+          break;
+          case "HARDWARE":
+            return "Hardver";
+            break;
+          case "NETWORK":
+            return "Mreža";
+            break;
+          default:
+            return "Ostalo";
+          break;
+        }
+      }
 
     return (
         <>

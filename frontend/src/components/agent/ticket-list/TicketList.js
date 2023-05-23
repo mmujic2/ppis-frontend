@@ -11,23 +11,17 @@ import TabPanel from "@mui/lab/TabPanel";
 import { makeStyles } from "@material-ui/core";
 import Ticket from "./Ticket";
 import Backdrop from "@mui/material/Backdrop";
-import InfoIcon from "@mui/icons-material/Info";
 import CircularProgress from "@mui/material/CircularProgress";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { RefreshRounded } from "@mui/icons-material";
 import {
   Grid,
-  IconButton,
-  Typography,
   Button,
-  TextField,
   FormControl,
   Select,
   MenuItem,
   InputLabel,
-  FormLabel,
-  Tooltip,
 } from "@mui/material";
 import { right } from "@popperjs/core";
 
@@ -40,16 +34,18 @@ function TicketList() {
   const [categoryError, setCategoryError] = useState(false);
   const [priorityError, setPriorityError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [firstTabSort, setFirstTabSort] = useState({desc:true});
+  const [secondTabSort, setSecondTabSort] = useState({desc:true})
+  const [thirdTabSort, setThirdTabSort] = useState({desc:true})
   const [sortData, setSortData] = useState({
-    icon: <ArrowUpwardIcon />,
-    up: true,
+    icon: <ArrowUpwardIcon />
   });
   const [loading,setLoading] = useState(false)
 
   const [filterData, setFilterData] = useState({
     priorityLevel: null,
     category: null,
-    ticketType: null,
+    ticketType: "assigned",
     userEmail: null,
     tag:null,
     sorting: "descending",
@@ -70,71 +66,94 @@ function TicketList() {
       [event.target.name]: event.target.value,
     });
 
-    console.log(valueTab)
+    
     switch (valueTab) {
       case "1":
-        filterData.ticketType = "assigned";
+        setFilterData({...filterData,ticketType:"assigned"})
         break;
       case "2":
-        filterData.ticketType = "open";
+        setFilterData({...filterData,ticketType:"open"})
         break;
       case "3":
-        filterData.ticketType = "closed";
+        setFilterData({...filterData,ticketType:"closed"})
         break;
     }
 
     switch (event.target.name) {
       case "category":
         setCategoryError(false);
-        filterData.category = event.target.value;
+        setFilterData({...filterData,category:event.target.value})
         break;
       case "priorityLevel":
         setPriorityError(false);
-        filterData.priorityLevel = event.target.value;
+        setFilterData({...filterData,priorityLevel:event.target.value})
         break;
       case "tag":
-        filterData.tag = event.target.value;
+        setFilterData({...filterData,tag:event.target.value})
         break;
       case "sorting":
-        console.log("sortchange");
 
-        if (sortData.up === true) {
-          setSortData({icon:<ArrowDownwardIcon />,up : false})
+        if (valueTab==1) {
+          //if value was desc, now it should be asc
+          var desc = !firstTabSort.desc
+          setSortData({icon: desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon /> })
+          setFirstTabSort({desc:!firstTabSort.desc})
+        } else if(valueTab==2) {
+          var desc = !secondTabSort.desc
+          setSortData({icon: desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon /> })
+          setSecondTabSort({desc:!secondTabSort.desc})
+        } else {
+          var desc = !thirdTabSort.desc
+          setSortData({icon:desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon />})
+          
+          setThirdTabSort({desc:desc})
+        }
+        
+        
+        
+        if(desc) {
           setFilterData({...filterData,sorting : "descending"});
         } else {
-          setSortData({icon:<ArrowUpwardIcon />,up : true})
           setFilterData({...filterData,sorting : "ascending"});
         }
 
         break;
     }
 
-    if (filterData.ticketType != null) {
-     reloadData()
-    }
+    
   };
+
+  useEffect(()=> {
+    reloadData()
+  },[filterData])
 
   const handleChange = (event, newValue) => {
     let type=""
     switch(newValue) {
      case "1":
         setDisplayedData(assignedTickets)
+        var desc = firstTabSort.desc
+        setSortData({icon: desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon /> })
         type="assigned"
         break;
       
       case "2":
         setDisplayedData(openTickets)
         type="open"
+        var desc = secondTabSort.desc
+        setSortData({icon: desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon />})
         break;
       case "3":
         setDisplayedData(closedTickets)
+        var desc = thirdTabSort.desc
+        setSortData({icon: desc ?  <ArrowUpwardIcon/> : <ArrowDownwardIcon /> })
         type="closed"
         break;
     }
 
     setFormData({...formData,category:null,priorityLevel:null,tag:null})
     setFilterData({...filterData,ticketType:type,category:null,priorityLevel:null,tag:null})
-    setSortData({up:true})
+    
 
     const newBackgroundColor = backgroundColorTab.map((c, i) => {
       if (i == valueTab - 1) return "#00101F";
@@ -284,6 +303,7 @@ function TicketList() {
                     }}
                     error={categoryError}
                   >
+                    <MenuItem value={null}>Sve</MenuItem>
                     <MenuItem value={"INCIDENT"}>Incident</MenuItem>
                     <MenuItem value={"REQUEST"}>Zahtjev za uslugom</MenuItem>
                   </Select>
@@ -311,6 +331,7 @@ function TicketList() {
                     }}
                     error={categoryError}
                   >
+                    <MenuItem value={null}>Sve</MenuItem>
                     <MenuItem value={"HARDWARE"}>Hardver</MenuItem>
                     <MenuItem value={"SOFTWARE"}>Softver</MenuItem>
                     <MenuItem value={"NETWORK"}>Mreža</MenuItem>
@@ -336,6 +357,7 @@ function TicketList() {
                     }}
                     error={priorityError}
                   >
+                    <MenuItem value={null}>Sve</MenuItem>
                     <MenuItem value={"LOW"}>Nizak</MenuItem>
                     <MenuItem value={"MEDIUM"}>Srednji</MenuItem>
                     <MenuItem value={"HIGH"}>Visok</MenuItem>
@@ -347,7 +369,7 @@ function TicketList() {
                   name="sorting"
                   value={filterData.sorting}
                   variant="sort"
-                  startIcon={sortData.up? <ArrowUpwardIcon></ArrowUpwardIcon> : <ArrowDownwardIcon></ArrowDownwardIcon>}
+                  startIcon={sortData.icon}
                   style={{ float: right, marginTop: 30, marginRight: 70 }}
                   onClick={handleFilter}
                 >

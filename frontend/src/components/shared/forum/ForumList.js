@@ -72,7 +72,7 @@ function ForumList() {
             <Header></Header>
                     {rows ?
                         <Container
-                            style={{ backgroundColor: "#F5F5F5", width: "100%", padding: 0, height: "500px" }}
+                            style={{ backgroundColor: "#F5F5F5", width: "100%", padding: 0, height: "fit-content" }}
                         >
                             <Box sx={{ width: "100%", backgroundColor: "#00101F" }}>
                                 <h2

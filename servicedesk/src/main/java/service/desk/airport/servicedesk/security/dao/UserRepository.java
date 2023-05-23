@@ -14,8 +14,8 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     Optional<User> findByEmail(String email);
 
 
-    @Query("SELECT u FROM User u WHERE u.department.id=:department_id ORDER BY (" +
+    @Query("SELECT u FROM User u WHERE u.department.id=:department_id AND u.id!=:agent_id ORDER BY (" +
             "SELECT COUNT(t.assignedTo) FROM User u2 LEFT JOIN Ticket t ON u2.id=t.assignedTo.id WHERE u2.id = u.id) ASC  LIMIT 1")
-    public User findUserInSpecificDepartment(Integer department_id);
+    public User findUserInSpecificDepartment(Integer department_id,Integer agent_id);
 
 }

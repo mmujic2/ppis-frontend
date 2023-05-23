@@ -134,12 +134,12 @@ function TopInfo({ticket,setTicket,setTicketComments,ticketComments}) {
             <span style={{fontFamily:"Yantramanav",color:"white",fontWeight:"bold",fontSize:"90%",float:"right",textAlign:"middle"}}><a  href="#" style={{textDecoration:"none",color:"white"}} onClick={showRelatedTickets}>{ticket.relatedTicketIds?ticket.relatedTicketIds.length:"0"} povezanih zahtjeva</a> | Kategorija: {category()}</span>
           </div>
           <div style={{width:"100%",clear:"both",marginTop:"30px"}}>
-            <span style={{fontFamily:"Yantramanav",color:"white",fontWeight:"bold",float:"left",fontSize:"100%"}}>Prijavio: {ticket.createdBy.firstname} {ticket.createdBy.lastname}</span>
+            <span style={{fontFamily:"Yantramanav",color:"white",fontWeight:"bold",float:"left",fontSize:"100%"}}>Prijavio/la: {ticket.createdBy.firstname} {ticket.createdBy.lastname}</span>
             {status()}
           </div>
           
           <div style={{width:"100%",clear:"both",paddingTop:"5px",display:"inline-block"}}>
-          {ticket.assignedTo ? <span style={{verticalAlign:"middle",fontFamily:"Yantramanav",color:"white",fontWeight:"bold",float:"left",fontSize:"100%"}}>Preuzeo: {ticket.assignedTo.firstname} {ticket.assignedTo.lastname}</span>
+          {ticket.assignedTo ? <span style={{verticalAlign:"middle",fontFamily:"Yantramanav",color:"white",fontWeight:"bold",float:"left",fontSize:"100%"}}>Preuzeo/la: {ticket.assignedTo.firstname} {ticket.assignedTo.lastname}</span>
           :<></>}
             <Options relatedTickets={relatedTickets} setRelatedTickets={setRelatedTickets} ticket={ticket} setTicket={setTicket} setTicketComments={setTicketComments} ticketComments={ticketComments}></Options>
           </div>

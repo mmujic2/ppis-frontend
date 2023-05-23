@@ -84,6 +84,7 @@ function Menu() {
             size="large"
             sx={{ boxShadow: 5 }}
             style={{ backgroundColor: "white" }}
+            onClick={()=>navigate("/ticket-list")}
           >
             <StyleIcon style={{ color: "#00101F" }} />
           </IconButton>
@@ -127,6 +128,7 @@ function Menu() {
             size="large"
             sx={{ boxShadow: 5 }}
             style={{ backgroundColor: "white" }}
+            onClick={()=>navigate("/manual-list")}
           >
             <LiveHelpIcon style={{ color: "#00101F" }} />
           </IconButton>

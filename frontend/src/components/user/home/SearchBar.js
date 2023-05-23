@@ -6,9 +6,11 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import authService from '../../../util/auth.service';
 import IconButton from '@mui/material/IconButton';
+import { useNavigate } from 'react-router-dom';
 
 
 function SearchBar() {
+const navigate = useNavigate();
 var user = authService.getCurrentUser();
   return (
     <div style={{
@@ -29,7 +31,7 @@ var user = authService.getCurrentUser();
       sx={{ ml: 1, flex: 1 }}
       inputProps={{ 'aria-label': 'search google maps' }}
     />
-    <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={()=>navigate("/manual-list")}>
       <SearchIcon />
     </IconButton>
   </Paper>

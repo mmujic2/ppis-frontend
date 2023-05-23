@@ -29,7 +29,7 @@ function Menu() {
   };
 
   return (
-    <div style={{marginLeft:"30px",width:"60%",marginTop:"17%",position:"absolute",backgroundColor:"inherit"}}>
+    <div style={{marginLeft:"30px",width:"60%",marginTop:"17%",position:"absolute",backgroundColor:"inherit",zIndex:3}}>
     <Stack direction="column"
     justifyContent="flex-start"
     alignItems="flex-start"
@@ -41,7 +41,7 @@ function Menu() {
     </IconButton>
     <Link
      to="/ticket-list"
-     style={{paddingLeft:20,fontFamily:"Yantramanav",fontSize:"100%",color:"#00101F",textDecoration:"none" }}
+     style={{paddingLeft:20,fontFamily:"Yantramanav",fontSize:"100%",color:"#00101F",textDecoration:"none",zIndex:10 }}
      >Pregled zahtjeva</Link>
     </div>
     <div>

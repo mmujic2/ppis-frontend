@@ -19,7 +19,6 @@ import service.desk.airport.servicedesk.service.TicketService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path="/ticket")
@@ -281,6 +280,7 @@ public class TicketController {
     @PostMapping("/assign/{ticket_id}/{user_id}")
     public ResponseEntity<TicketResponse> assignTicketToUser(@PathVariable Integer ticket_id, @PathVariable Integer user_id) {
         try {
+
             var res = ticketService.assignTicketToUser(ticket_id, user_id);
             //Ticket is already VERIFIED or CLOSED
             if(res==null)
@@ -295,9 +295,10 @@ public class TicketController {
 
     @PreAuthorize("hasRole('sd_agent')")
     @PostMapping("/assign/department/{ticket_id}/{department_id}")
-    public ResponseEntity<TicketResponse> assignTicketToUserWithDeparment(@PathVariable Integer ticket_id, @PathVariable Integer department_id) {
+    public ResponseEntity<TicketResponse> forwardTicketToDepartment(@PathVariable Integer ticket_id, @PathVariable Integer department_id,@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            var res = ticketService.assignTicketToUserWithDeparment(ticket_id, department_id);
+            var agentEmail = jwtService.extractUsername(token.substring(7));
+            var res = ticketService.assignTicketToUserWithDeparment(ticket_id, department_id,agentEmail);
             //Ticket is already VERIFIED or CLOSED
             if(res==null)
                 return new ResponseEntity<TicketResponse>((TicketResponse) null, HttpStatusCode.valueOf(400));

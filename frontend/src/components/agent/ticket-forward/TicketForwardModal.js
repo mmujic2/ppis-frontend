@@ -134,9 +134,9 @@ export default function TicketForwardModal({ open, setOpen, ticketid }) {
             ticketId: ticketid,
             comment:
               "Zahtjev proslijeđen " +
-              res.data.firstname +
+              res.data.assignedTo.firstname +
               " " +
-              res.data.lastname,
+              res.data.assignedTo.lastname,
           });
         }
       });
@@ -221,7 +221,7 @@ export default function TicketForwardModal({ open, setOpen, ticketid }) {
               sx={{ marginLeft: 8 }}
               onClick={handleSubmit}
             >
-              Spremi
+              Proslijedi
             </Button>
           </Container>
         </DialogContent>

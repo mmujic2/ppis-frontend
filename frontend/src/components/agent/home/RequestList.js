@@ -19,7 +19,7 @@ function RequestList() {
   return (
     <div 
     style={{height:"90%",width:"52%",backgroundColor:"#D9D9D9",
-    position:"absolute",zIndex:1,marginLeft:"45%", boxShadow: '1px 2px 9px #000000',overflow:'hidden'}}>
+    position:"absolute",zIndex:3,marginLeft:"45%", boxShadow: '1px 2px 9px #000000',overflow:'hidden'}}>
         <h1 style={{color:"#00101F",fontFamily:"Yantramanav",fontSize:"180%", padding:"15px 15px 0px",margin:0}}>Urgentni zahtjevi</h1>
         <hr
               style={{

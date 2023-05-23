@@ -31,8 +31,5 @@ public class UserController {
     }
 
 
-    @GetMapping(path="/department/{id}")
-    public @ResponseBody User findUserInSpecificDepartment( @PathVariable("id") Integer department_id) {
-        return userRepository.findUserInSpecificDepartment(department_id);
-    }
+
 }

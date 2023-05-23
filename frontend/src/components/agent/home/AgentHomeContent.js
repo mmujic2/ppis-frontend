@@ -12,7 +12,7 @@ function AgentHomeContent() {
       </h1>
       </div>
       <Menu></Menu>
-      <div style={{margin:0,textAlign:"center",position:"absolute",marginLeft:"100px", zIndex:2,width:"45%",height:480}}>
+      <div style={{margin:0,textAlign:"center",position:"absolute",marginLeft:"100px", zIndex:2,width:"50%",height:480}}>
         <img src={graphic} alt="React Logo" style={{position:"relative",zIndex:2,marginTop:"35%",width:"60%"}} />
       </div>
       <RequestList></RequestList>
